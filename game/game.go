@@ -14,8 +14,10 @@ type Step interface {
 type registry map[SolutionHash]Step // mapa krokow, nie jest synchronizowana, ale z racji ze nie mozna usuwac elementow to wydaje sie to bezpieczne
 func gameRound(frontier chan Step, visited *registry, tokens chan token, results chan<- Step) {
 	// w kolko szukaj rozwiazania
+	fmt.Printf("Go")
 	for {
 		token := <-tokens // dziwny mechanizm wykrywania, ze nie ma dalszych krokow do analizy i trzeba oglosic porazke - mozliwe ze niepoprawny
+		fmt.Printf("Token %d", token)
 		if len(tokens) == 0 && len(frontier) == 0 {
 			results <- nil
 		} else {
