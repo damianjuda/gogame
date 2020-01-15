@@ -1,0 +1,1 @@
+go run test.go 2 2 0,0.0,1 
