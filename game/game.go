@@ -16,7 +16,7 @@ func gameRound(frontier chan Step, visited *registry, tokens chan token, results
 	// w kolko szukaj rozwiazania
 	for {
 		token := <-tokens // dziwny mechanizm wykrywania, ze nie ma dalszych krokow do analizy i trzeba oglosic porazke - mozliwe ze niepoprawny
-		fmt.Printf("Token %d", token)
+		fmt.Printf("Token %d\n", token)
 		if len(tokens) == 0 && len(frontier) == 0 {
 			results <- nil
 		} else {
