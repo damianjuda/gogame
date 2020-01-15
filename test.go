@@ -17,7 +17,7 @@ var (
 func main() {
 	kingpin.Parse()
 	fmt.Printf("Rows %d Columns %d Split %s \n", *rows, *columns, *split)
-	b := board.EmptyBoard(*rows, *columns)
+	b := game.EmptyBoard(*rows, *columns)
 	for _, sub := range strings.Split(*split, ".") {
 		phrase := strings.Split(sub, ",")
 		if len(phrase) > 1 {
