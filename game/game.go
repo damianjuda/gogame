@@ -14,7 +14,6 @@ type Step interface {
 type registry map[SolutionHash]Step // mapa krokow, nie jest synchronizowana, ale z racji ze nie mozna usuwac elementow to wydaje sie to bezpieczne
 func gameRound(frontier chan Step, visited *registry, tokens chan token, results chan<- Step) {
 	// w kolko szukaj rozwiazania
-	fmt.Printf("Go")
 	for {
 		token := <-tokens // dziwny mechanizm wykrywania, ze nie ma dalszych krokow do analizy i trzeba oglosic porazke - mozliwe ze niepoprawny
 		fmt.Printf("Token %d", token)
@@ -46,7 +45,7 @@ type token int
 
 func Play(initial Step) Step {
 	visited := &registry{} // mapa krokow, juz minionych (wystarczyl by zbior hashy, bo teraz zuzywa za duzo pamieci)
-	frontier := make(chan Step) // synchronizowany kanał kroków do analizy
+	frontier := make(chan Step, 10000) // synchronizowany kanał kroków do analizy
 	results := make(chan Step) // kanał na wyniki (de facto pierwszy)
 	jobsNo := 5 // liczba 'watkow'
 	tokens := make(chan token, jobsNo) // kanal pomocniczy do wykrywania, ze juz nie ma krokow do analizy
