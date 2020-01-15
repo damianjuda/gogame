@@ -1,4 +1,4 @@
-module relayr/game
+module github.com/damianjuda/gogame
 
 go 1.13
 

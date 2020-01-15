@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"./game/game"
-	"./game/board"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"strconv"
 	"strings"
+	"github.com/damianjuda/gogame/game"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
