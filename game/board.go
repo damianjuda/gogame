@@ -10,8 +10,8 @@ const (
 )
 
 type domino struct {
-	index int // indeks na 1 wymiarowej tablicy (reprezentującej 2 wymiarową) prawy górny róg domino
-	dir   dir // poziome albo pionowe domino
+	index int    // indeks na 1 wymiarowej tablicy (reprezentującej 2 wymiarową) prawy górny róg domino
+	dir   dir    // poziome albo pionowe domino
 	board *Board // referencja do całej tablicy
 }
 
@@ -23,8 +23,8 @@ func (domino *domino) indicies() (int, int) {
 }
 
 type Board struct {
-	rows    int // liczba wierszy kratownicy
-	columns int // liczba kolumn kratownicy
+	rows    int    // liczba wierszy kratownicy
+	columns int    // liczba kolumn kratownicy
 	board   []bool // tablica reprezentująca puste i pełne miejsca na kratownicy
 }
 
@@ -32,12 +32,45 @@ func (board *Board) index(row int, column int) int {
 	return row*board.columns + column // indeks w 1 wymiarowej tablicy emulującej 2 wymiarową
 }
 
+func (board *Board) mindex(index int) (int, int) {
+	return index / board.columns, index % board.columns
+}
+
 func (board *Board) valid(row int, column int) bool {
-	return row < board.rows && column < board.columns // czy pozycja (wiersz,kolumna) nalezy do kratownicy
+	return row < board.rows && column < board.columns && row >= 0 && column >= 0 // czy pozycja (wiersz,kolumna) nalezy do kratownicy
+}
+
+func (board *Board) neighbours(index int) []int {
+	row, column := board.mindex(index)
+	left := []int{row, column - 1}
+	right := []int{row, column + 1}
+	up := []int{row - 1, column}
+	down := []int{row + 1, column}
+	neighbours := [][]int{left, right, up, down}
+	validNeighbours := make([]int, 0)
+	for _, neighbour := range neighbours {
+		if board.valid(neighbour[0], neighbour[1]) {
+			validNeighbour := board.index(neighbour[0], neighbour[1])
+			validNeighbours = append(validNeighbours, validNeighbour)
+		}
+	}
+	return validNeighbours
+}
+
+func (board *Board) cluster(index int) int {
+	cluster := 0
+	if board.board[index] == false {
+		board.board[index] = true
+		cluster += 1
+		for _, neighbour := range board.neighbours(index) {
+			cluster += board.cluster(neighbour)
+		}
+	}
+	return cluster
 }
 
 func (board *Board) Mark(row int, column int) {
-	board.board[board.index(row, column)] = true      // zaznacz pole jako zajęte
+	board.board[board.index(row, column)] = true // zaznacz pole jako zajęte
 }
 
 func EmptyBoard(rows int, columns int) *Board {
@@ -81,9 +114,9 @@ func (b *Board) moves() []*domino {
 func (board *Board) Hash() int {
 	// Niezbyt madra funkcja generujaca unikalnego hasha (stringa) dla kazdych 2 roznych kratownic
 	hash := 0.0
-	for integer := range board.board {
-		if board.board[integer] {
-			hash += math.Pow(2.0, float64(integer))
+	for index := range board.board {
+		if board.board[index] {
+			hash += math.Pow(2.0, float64(index))
 		}
 	}
 	return int(hash)
@@ -101,12 +134,23 @@ func (board *Board) IsSolution() bool {
 	return true
 }
 
+func (board *Board) Reject() bool {
+	test := copyBoard(*board)
+	for index := range test.board {
+		cluster := test.cluster(index)
+		if cluster%2 == 1 {
+			return true
+		}
+	}
+	return false
+}
+
 func (board *Board) Steps() []Step {
 	dominos := board.moves() // dla danej kratownicy , znajdz mozliwe ruchy (nowe domina)
 	boards := make([]Step, 0, len(dominos))
 	for index := range dominos {
 		// wykonaj mozliwe ruchy, tworzac nowe kratownice
-		newboard := copyBoard(*board) 
+		newboard := copyBoard(*board)
 		domino := dominos[index]
 		x, y := domino.indicies()
 		newboard.board[x] = true
