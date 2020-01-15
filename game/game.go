@@ -18,7 +18,7 @@ func gameRound(index int, frontier chan Step, visited *sync.Map, tokens chan tok
 	for {
 		token := <-tokens // dziwny mechanizm wykrywania, ze nie ma dalszych krokow do analizy i trzeba oglosic porazke - mozliwe ze niepoprawny
 		if len(tokens) == 0 && len(frontier) == 0 {
-			fmt.Printf("Stack (id=%d) (token=%d) (todo=%d) (workers=%d) \n", index, token, len(frontier), len(tokens))
+			// fmt.Printf("Stack (id=%d) (token=%d) (todo=%d) (workers=%d) \n", index, token, len(frontier), len(tokens))
 			tokens <- token // oddaj token
 			results <- nil
 		} else {
@@ -30,7 +30,7 @@ func gameRound(index int, frontier chan Step, visited *sync.Map, tokens chan tok
 				break
 			}
 			// jesli aktualny krok nie jest rozwiazaniem to zobacz mozliwe do wykonania kroki
-			fmt.Printf("Step (id=%d) (token=%d) (todo=%d) (workers=%d) \n", index, token, len(frontier), len(tokens))
+			// fmt.Printf("Step (id=%d) (token=%d) (todo=%d) (workers=%d) \n", index, token, len(frontier), len(tokens))
 			steps := test.Steps()
 			for stepIndex := range steps {
 				step := steps[stepIndex]
