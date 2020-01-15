@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"github.com/damianjuda/gogame/game"
+	"./game"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 

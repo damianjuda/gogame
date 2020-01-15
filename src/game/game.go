@@ -1,6 +1,9 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/cornelk/hashmap"
+)
 
 type SolutionHash string // reprezentacja gwarantujaca unikalnosc kolejnych krokow, zeby sie nie zapetlic
 
@@ -11,7 +14,7 @@ type Step interface {
 	IsSolution() bool // kazdy krok moze byc rozwiazaniem gry
 }
 
-type registry map[SolutionHash]Step // mapa krokow, nie jest synchronizowana, ale z racji ze nie mozna usuwac elementow to wydaje sie to bezpieczne
+type registry HashMap // mapa krokow, nie jest synchronizowana, ale z racji ze nie mozna usuwac elementow to wydaje sie to bezpieczne
 func gameRound(frontier chan Step, visited *registry, tokens chan token, results chan<- Step) {
 	// w kolko szukaj rozwiazania
 	for {
