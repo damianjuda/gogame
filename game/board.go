@@ -29,6 +29,7 @@ type Board struct {
 	columns         int // liczba kolumn kratownicy
 	clustersNoCache int
 	board           []bool // tablica reprezentująca puste i pełne miejsca na kratownicy
+	dominos         []domino
 }
 
 func (board *Board) index(row int, column int) int {
@@ -87,6 +88,7 @@ func EmptyBoard(rows int, columns int) *Board {
 		columns,
 		-2,
 		make([]bool, rows*columns, rows*columns),
+		make([]domino, rows*columns/2),
 	}
 }
 
@@ -193,6 +195,7 @@ func (board *Board) normalize() bool {
 				return false
 			} else if len(moves) == 1 {
 				board.board[index] = true
+				board.board[moves[0]] = true
 			}
 		}
 	}
