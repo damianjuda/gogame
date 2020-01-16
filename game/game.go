@@ -47,8 +47,9 @@ func gameRound(index int, frontier *queue.PriorityQueue, visited *sync.Map, toke
 					results <- test // jesli krok jest rozwiazaniem zwroc fo jako sukces
 				} else if !test.Reject() {
 					// jesli aktualny krok nie jest rozwiazaniem to zobacz mozliwe do wykonania kroki
-					if counter%1000 == 0 {
-						fmt.Printf("Step (id=%d) (token=%d) (todo=%d) (workers=%d) (counter=%d)\n", index, token, frontier.Len(), len(tokens), counter)
+					//fmt.Printf("Step (id=%d) (token=%d) (todo=%d) (workers=%d) (counter=%d)\n", index, token, frontier.Len(), len(tokens), counter)
+					if index == 1 {
+						test.Display()
 					}
 					steps := test.Steps()
 					for stepIndex := range steps {

@@ -21,7 +21,7 @@ type domino struct {
 }
 
 func NewDomino(x int, y int, board *Board) *domino {
-	if x+board.columns == y {
+	if x == y+board.columns {
 		return &domino{y, UD, board}
 	} else if y == x+board.columns {
 		return &domino{x, UD, board}
@@ -47,6 +47,7 @@ type Board struct {
 	clustersNoCache int
 	board           []bool // tablica reprezentująca puste i pełne miejsca na kratownicy
 	dominos         []*domino
+	holes           []int
 }
 
 func (board *Board) index(row int, column int) int {
@@ -95,7 +96,9 @@ func (board *Board) cluster(index int) int {
 }
 
 func (board *Board) Mark(row int, column int) {
-	board.board[board.index(row, column)] = true // zaznacz pole jako zajęte
+	index := board.index(row, column)
+	board.board[index] = true // zaznacz pole jako zajęte
+	board.holes = append(board.holes, index)
 }
 
 func EmptyBoard(rows int, columns int) *Board {
@@ -106,6 +109,7 @@ func EmptyBoard(rows int, columns int) *Board {
 		-2,
 		make([]bool, rows*columns, rows*columns),
 		make([]*domino, 0),
+		make([]int, 0),
 	}
 }
 
@@ -118,6 +122,7 @@ func copyBoard(base *Board) *Board {
 	for _, value := range base.dominos {
 		board.dominos = append(board.dominos, value)
 	}
+	board.holes = base.holes
 	return board
 }
 
@@ -203,21 +208,25 @@ func (board *Board) normalize(domino *domino) bool {
 	board.board[x] = true
 	board.board[y] = true
 	board.dominos = append(board.dominos, domino)
-	for index, value := range board.board {
-		if value == false {
-			moves := make([]int, 4)
-			for _, neighbour := range board.neighbours(index) {
-				if board.board[neighbour] == false {
-					moves = append(moves, neighbour)
+	check := true
+	for check {
+		check = false
+		for index, value := range board.board {
+			if value == false {
+				moves := make([]int, 0)
+				for _, neighbour := range board.neighbours(index) {
+					if board.board[neighbour] == false {
+						moves = append(moves, neighbour)
+					}
 				}
-			}
-			if len(moves) == 0 {
-				fmt.Printf("Empty move")
-				return false
-			} else if len(moves) == 1 {
-				board.dominos = append(board.dominos, NewDomino(index, moves[0], board))
-				board.board[index] = true
-				board.board[moves[0]] = true
+				if len(moves) == 0 {
+					return false
+				} else if len(moves) == 1 {
+					check = true
+					board.dominos = append(board.dominos, NewDomino(index, moves[0], board))
+					board.board[index] = true
+					board.board[moves[0]] = true
+				}
 			}
 		}
 	}
@@ -238,7 +247,7 @@ func (board *Board) Steps() []Step {
 	return boards
 }
 
-var runes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+var runes = "abcdefghijklmnopqrstuvwyzABCDEFGHIJKLMNOPQRSTUVWYZ0123456789"
 
 func (board *Board) Display() {
 	rand.Seed(time.Now().UnixNano())
@@ -249,7 +258,10 @@ func (board *Board) Display() {
 		display[a] = randomLetter
 		display[b] = randomLetter
 	}
-	fmt.Printf("\n")
+	for _, hole := range board.holes {
+		display[hole] = 'X'
+	}
+	fmt.Printf("*******************\n")
 	for index := range board.board {
 		if index%board.columns == 0 {
 			fmt.Printf("\n")
@@ -260,5 +272,5 @@ func (board *Board) Display() {
 		}
 		fmt.Printf("%c", el)
 	}
-	fmt.Printf("\n")
+	fmt.Printf("\n*******************\n")
 }
