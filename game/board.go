@@ -1,6 +1,8 @@
 package game
 
 import (
+	"fmt"
+
 	"github.com/Workiva/go-datastructures/queue"
 )
 
@@ -17,6 +19,20 @@ type domino struct {
 	board *Board // referencja do całej tablicy
 }
 
+func NewDomino(x int, y int, board *Board) *domino {
+	if x+board.columns == y {
+		return &domino{y, UD, board}
+	} else if y == x+board.columns {
+		return &domino{x, UD, board}
+	} else if y == x+1 {
+		return &domino{x, LR, board}
+	} else if x == y+1 {
+		return &domino{y, LR, board}
+	} else {
+		panic("It's invalid domino")
+	}
+}
+
 func (domino *domino) indicies() (int, int) {
 	if domino.dir == UD {
 		return domino.index, domino.index + domino.board.columns
@@ -29,7 +45,7 @@ type Board struct {
 	columns         int // liczba kolumn kratownicy
 	clustersNoCache int
 	board           []bool // tablica reprezentująca puste i pełne miejsca na kratownicy
-	dominos         []domino
+	dominos         []*domino
 }
 
 func (board *Board) index(row int, column int) int {
@@ -88,7 +104,7 @@ func EmptyBoard(rows int, columns int) *Board {
 		columns,
 		-2,
 		make([]bool, rows*columns, rows*columns),
-		make([]domino, rows*columns/2),
+		make([]*domino, 0),
 	}
 }
 
@@ -97,6 +113,9 @@ func copyBoard(base *Board) *Board {
 	board := EmptyBoard(base.rows, base.columns)
 	for index, value := range base.board {
 		board.board[index] = value
+	}
+	for _, value := range base.dominos {
+		board.dominos = append(board.dominos, value)
 	}
 	return board
 }
@@ -133,13 +152,9 @@ func (board *Board) full() float64 {
 
 func (board *Board) Hash() string {
 	// Niezbyt madra funkcja generujaca unikalnego hasha (stringa) dla kazdych 2 roznych kratownic
-	hash := ""
-	for index := range board.board {
-		if board.board[index] {
-			hash += "T"
-		} else {
-			hash += "F"
-		}
+	hash := fmt.Sprintf("#%d ", len(board.dominos))
+	for _, domino := range board.dominos {
+		hash += fmt.Sprintf("(%d%d)", domino.dir, domino.index)
 	}
 	return hash
 }
@@ -182,7 +197,11 @@ func (board *Board) Compare(other queue.Item) int {
 	}
 }
 
-func (board *Board) normalize() bool {
+func (board *Board) normalize(domino *domino) bool {
+	x, y := domino.indicies()
+	board.board[x] = true
+	board.board[y] = true
+	board.dominos = append(board.dominos, domino)
 	for index, value := range board.board {
 		if value == false {
 			moves := make([]int, 4)
@@ -192,8 +211,10 @@ func (board *Board) normalize() bool {
 				}
 			}
 			if len(moves) == 0 {
+				fmt.Printf("Empty move")
 				return false
 			} else if len(moves) == 1 {
+				board.dominos = append(board.dominos, NewDomino(index, moves[0], board))
 				board.board[index] = true
 				board.board[moves[0]] = true
 			}
@@ -209,10 +230,7 @@ func (board *Board) Steps() []Step {
 		// wykonaj mozliwe ruchy, tworzac nowe kratownice
 		newboard := copyBoard(board)
 		domino := dominos[index]
-		x, y := domino.indicies()
-		newboard.board[x] = true
-		newboard.board[y] = true
-		if newboard.normalize() {
+		if newboard.normalize(domino) {
 			boards = append(boards, newboard)
 		}
 	}

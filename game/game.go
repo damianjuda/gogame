@@ -13,7 +13,7 @@ type SolutionHash int // reprezentacja gwarantujaca unikalnosc kolejnych krokow,
 type Step interface {
 	queue.Item
 	Steps() []Step    // kazdy krok generuje kolejne kroki
-	Hash() string       // kazdy krok posiada unikalna reprezentacje
+	Hash() string     // kazdy krok posiada unikalna reprezentacje
 	IsSolution() bool // kazdy krok moze byc rozwiazaniem gry
 	Reject() bool
 }
@@ -41,7 +41,7 @@ func gameRound(index int, frontier *queue.PriorityQueue, visited *sync.Map, toke
 			}
 			for _, item := range items {
 				test := item.(Step)
-				fmt.Printf("Hash %d\n", test.Hash())
+				fmt.Printf("Hash %s\n", test.Hash())
 				(*visited).Store(test.Hash(), true) // oznacz krok jako juz analizowany
 				if test.IsSolution() {
 					results <- test // jesli krok jest rozwiazaniem zwroc fo jako sukces
