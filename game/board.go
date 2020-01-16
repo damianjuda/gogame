@@ -2,8 +2,9 @@ package game
 
 import (
 	"fmt"
-
 	"github.com/Workiva/go-datastructures/queue"
+	"math/rand"
+	"time"
 )
 
 type dir int
@@ -235,4 +236,29 @@ func (board *Board) Steps() []Step {
 		}
 	}
 	return boards
+}
+
+var runes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func (board *Board) Display() {
+	rand.Seed(time.Now().UnixNano())
+	display := make(map[int]rune)
+	for _, domino := range board.dominos {
+		randomLetter := rune(runes[rand.Intn(len(runes))])
+		a, b := domino.indicies()
+		display[a] = randomLetter
+		display[b] = randomLetter
+	}
+	fmt.Printf("\n")
+	for index := range board.board {
+		if index%board.columns == 0 {
+			fmt.Printf("\n")
+		}
+		el, ok := display[index]
+		if !ok {
+			el = ' '
+		}
+		fmt.Printf("%c", el)
+	}
+	fmt.Printf("\n")
 }

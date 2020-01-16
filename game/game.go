@@ -16,6 +16,7 @@ type Step interface {
 	Hash() string     // kazdy krok posiada unikalna reprezentacje
 	IsSolution() bool // kazdy krok moze byc rozwiazaniem gry
 	Reject() bool
+	Display()
 }
 
 func gameRound(index int, frontier *queue.PriorityQueue, visited *sync.Map, tokens chan token, results chan<- Step) {
@@ -41,7 +42,6 @@ func gameRound(index int, frontier *queue.PriorityQueue, visited *sync.Map, toke
 			}
 			for _, item := range items {
 				test := item.(Step)
-				fmt.Printf("Hash %s\n", test.Hash())
 				(*visited).Store(test.Hash(), true) // oznacz krok jako juz analizowany
 				if test.IsSolution() {
 					results <- test // jesli krok jest rozwiazaniem zwroc fo jako sukces
@@ -87,6 +87,7 @@ func Play(initial Step) Step {
 		result := <-results // czekaj na wynik (krok - success, nil - nie ma rozwiazania)
 		if result != nil {
 			fmt.Printf("Success\n")
+			result.Display()
 			return result
 		}
 	}

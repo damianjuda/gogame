@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/damianjuda/gogame/game/game"
+	"gopkg.in/alecthomas/kingpin.v2"
 	"strconv"
 	"strings"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -37,6 +37,5 @@ func play() {
 			}
 		}
 	}
-	result := game.Play(b)
-	fmt.Printf("Result %f\n", result)
+	game.Play(b)
 }
